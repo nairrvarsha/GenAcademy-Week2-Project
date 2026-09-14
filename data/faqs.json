@@ -1,0 +1,62 @@
+[
+  {
+    "faq_id": "faq-001",
+    "question": "What can I use this platform for?",
+    "answer": "You can discover restaurants and ask about their listed cuisines, locality, approximate cost for two, menu items, popular dishes, ratings, opening hours, and valet availability. The project currently includes 200 Bengaluru restaurant outlets."
+  },
+  {
+    "faq_id": "faq-002",
+    "question": "Is the approximate cost for one person or two?",
+    "answer": "The listed approximate cost is for two people, in Indian rupees. It is an estimate from the source dataset, not a current quote or a guaranteed final bill."
+  },
+  {
+    "faq_id": "faq-003",
+    "question": "Why is a restaurant's menu missing?",
+    "answer": "Menu information is not available for every restaurant in our dataset. An empty menu list means we do not have that information; it does not mean the restaurant has no menu."
+  },
+  {
+    "faq_id": "faq-004",
+    "question": "Are listed menus complete and are individual dish prices available?",
+    "answer": "Listed menu items may be incomplete or outdated. We do not have individual dish prices, and we cannot confirm that a listed dish is currently available."
+  },
+  {
+    "faq_id": "faq-005",
+    "question": "What is the difference between menu items and popular dishes?",
+    "answer": "Menu items are dishes recorded in the source menu data. Popular dishes are dishes recorded in the source dataset's dish-liked field. Neither list is guaranteed to be complete, and an empty popular-dishes list does not mean a restaurant has no popular dishes."
+  },
+  {
+    "faq_id": "faq-006",
+    "question": "Are restaurant ratings, opening hours, and valet details verified?",
+    "answer": "No. Ratings, opening hours, and valet availability are fictional demo values added for this project. They are not verified restaurant information and should not be used to plan a real visit."
+  },
+  {
+    "faq_id": "faq-007",
+    "question": "Is the restaurant information up to date?",
+    "answer": "The restaurant listings come from a historical public Zomato dataset for Bengaluru and are not updated live. Names, addresses, cuisines, menus, and approximate costs may have changed. The ratings, opening hours, and valet values are synthetic project data."
+  },
+  {
+    "faq_id": "faq-008",
+    "question": "Can I place an order, track a delivery, or reserve a table?",
+    "answer": "This project supports restaurant discovery and information queries. Ordering, delivery tracking, payments, refunds, and table reservations are not available."
+  },
+  {
+    "faq_id": "faq-009",
+    "question": "Can you confirm whether a dish is vegan, gluten-free, or safe for an allergy?",
+    "answer": "Our dataset does not contain verified dietary or allergen information. We cannot confirm suitability from dish names or cuisines. Please confirm ingredients and preparation directly with the restaurant."
+  },
+  {
+    "faq_id": "faq-010",
+    "question": "Why can't I find a particular restaurant or a matching recommendation?",
+    "answer": "This project includes a sample of 200 Bengaluru outlets, not every restaurant in the city. A restaurant may be outside this sample, or no listed restaurant may match all your filters. You can try another locality, cuisine, or budget."
+  },
+  {
+    "faq_id": "faq-011",
+    "question": "How can I report incorrect restaurant information?",
+    "answer": "Provide the restaurant name, locality, the detail you believe is incorrect, and the suggested correction. For this demo, the chatbot can summarize this information for review. A real correction submission service is not connected, so it must not claim that a report was submitted or a listing was updated."
+  },
+  {
+    "faq_id": "faq-012",
+    "question": "What happens if the chatbot cannot answer my question?",
+    "answer": "The chatbot should explain what information is missing and ask for clarification when useful. It can prepare a summary for human review, but this demo has no live support team connection and cannot claim that a support ticket was created or an agent was contacted."
+  }
+]
