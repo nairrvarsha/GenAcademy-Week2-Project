@@ -35,12 +35,11 @@ def show_answer(reply):
 restaurants = json.loads((ROOT / "data/restaurants.json").read_text())
 with st.sidebar:
     st.divider()
-    st.markdown("### 🍽️ Bengaluru Bites")
+    st.markdown("### 🍽️ Bangalore")
     st.caption(f"Explore {len(restaurants)} restaurant listings")
     st.divider()
     st.markdown("**Narrow your search**")
     locality = st.selectbox("Locality", ["Any locality"] + sorted({r["locality"] for r in restaurants if r.get("locality")}))
-    cuisine = st.selectbox("Cuisine", ["Any cuisine"] + sorted({c for r in restaurants for c in (r.get("cuisines") or [])}))
     use_budget = st.checkbox("Set a budget for two")
     budget = st.number_input("Maximum cost for two (₹)", min_value=0, max_value=100000,
                              value=1000, step=100, disabled=not use_budget)
@@ -52,8 +51,6 @@ with st.sidebar:
 filters = {}
 if locality != "Any locality":
     filters["locality"] = locality
-if cuisine != "Any cuisine":
-    filters["cuisine"] = cuisine
 if use_budget:
     filters["max_cost"] = budget
 signature = json.dumps(filters, sort_keys=True)

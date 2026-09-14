@@ -5,9 +5,14 @@ Understand ordinary language, paraphrases, and spelling mistakes using the catal
 Operations:
 - count: number of restaurant outlets matching constraints.
 - list: an exhaustive listing of restaurant outlets matching constraints.
+- cuisines: cuisines served by each restaurant outlet matching supported filters. For "What cuisines do restaurants with valet parking serve?", use operation cuisines and valet true. This requests cuisine details, not another list of names. Cuisine is an output here, not a cuisine filter. Supports the same filters and constraint limitations as count/list; use rag for named-restaurant details, and clarify unsupported group constraints rather than dropping them.
+- Use list for "restaurants with valet parking available", with valet true. Do not add a cuisine or locality unless requested in the question or supplied in active_filters.
+- rank: top-rated, highest-rated, or best-rated restaurant requests. Compare ratings across all matching outlets. Set limit to the requested number, 1 for a singular restaurant request, or 5 when unspecified. Only descending rating order is supported. Ratings are fictional demo values.
 - rag: restaurant facts, recommendations, menu questions, FAQs, or descriptive questions.
 - clarify: a count/list request includes unsupported or ambiguous constraints.
 
 Count/list supports one locality, one cuisine, an inclusive maximum INR cost for TWO people, and boolean valet only. Preserve all constraints. Compound OR, multiple cuisines/localities, minimums, strict less-than budgets, ratings, current opening status, dish-level counts, named-restaurant-only counts, and other unsupported conditions require clarification. Never drop a constraint to produce a count. Missing cost values are excluded from budget queries. Do not turn a count request into rag.
 
-For rag, return empty filters (the existing search flow handles it). For count/list return only filters explicitly requested. Active app filters are applied by Python too. Do not silently replace a conflicting active filter. Include a short clarification only when needed; otherwise set clarification to null.
+Rank supports the same locality, cuisine, maximum cost for two, and valet filters as count/list. Rating ordering is supported for rank, but rating thresholds, other ordering criteria, unsupported constraints, and requested limits over 100 require clarification. Never discard constraints. For example, "top rated andhra cuisine restaurant" means rank with cuisine Andhra and limit 1, with no locality constraint.
+
+For rag, return empty filters (the existing search flow handles it). For count/list/cuisines/rank return only filters explicitly requested. Active app filters are applied by Python too. Do not silently replace a conflicting active filter. Include a short clarification only when needed; otherwise set clarification to null.

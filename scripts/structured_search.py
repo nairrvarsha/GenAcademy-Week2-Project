@@ -18,8 +18,9 @@ class QueryFilters(BaseModel):
 
 class QueryPlan(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    operation: Literal["count", "list", "rag", "clarify"]
+    operation: Literal["count", "list", "cuisines", "rank", "rag", "clarify"]
     filters: QueryFilters
+    limit: int = Field(default=5, ge=1, le=100)
     clarification: str | None = None
 
 
@@ -71,7 +72,22 @@ def structured_context(question, filters=None, *, llm):
         )
     # Count outlets, not chunks or unique restaurant names.
     matched = {r['restaurant_id']: r for r in rows if eligible(r)}
-    outlets = [{'restaurant_id': r['restaurant_id'], 'name': r['name'], 'locality': r['locality']}
+    if plan.operation == 'rank':
+        rated = [r for r in matched.values()
+                 if isinstance(r.get('rating_out_of_5'), (int, float))
+                 and not isinstance(r['rating_out_of_5'], bool)
+                 and 0 <= r['rating_out_of_5'] <= 5]
+        ranked = sorted(rated, key=lambda r: (-r['rating_out_of_5'], r['name'], r['restaurant_id']))
+        # Include ties at the cutoff instead of arbitrarily claiming one winner.
+        cutoff = ranked[min(plan.limit, len(ranked)) - 1]['rating_out_of_5'] if ranked else None
+        outlets = [{key: r.get(key) for key in
+                    ('restaurant_id', 'name', 'locality', 'rating_out_of_5', 'approx_cost_for_two_inr')}
+                   for r in ranked if r['rating_out_of_5'] >= cutoff]
+        return _source({'operation': 'rank', 'count': len(matched), 'rated_count': len(rated),
+                        'filters': filters, 'outlets': outlets, 'limit': plan.limit,
+                        'scope': 'our dataset'})
+    outlets = [{'restaurant_id': r['restaurant_id'], 'name': r['name'], 'locality': r['locality'],
+                **({'cuisines': r.get('cuisines', [])} if plan.operation == 'cuisines' else {})}
                for r in sorted(matched.values(), key=lambda r: (r['name'], r['restaurant_id']))]
     return _source({'operation': plan.operation, 'count': len(outlets),
                     'filters': filters, 'outlets': outlets, 'scope': 'our dataset'})
@@ -92,6 +108,30 @@ def render_structured(source):
     where = f' in {locality}' if locality else ''
     cuisine = data['filters'].get('cuisine')
     serving = f' serving {cuisine} cuisine' if cuisine else ''
+    details = []
+    if 'valet' in data['filters']:
+        details.append('with valet parking' if data['filters']['valet'] else 'without valet parking')
+    if 'max_cost' in data['filters']:
+        details.append(f"costing at most ₹{data['filters']['max_cost']:g} for two")
+    serving += (' ' + ' and '.join(details)) if details else ''
+    if data['operation'] == 'rank':
+        if not data['outlets']:
+            return f'No rated restaurant outlets{where}{serving} match your filters in our dataset. [S1]', 'answered', ['S1']
+        text = (f"Highest-rated restaurant outlets{where}{serving}, compared across all "
+                f"{data['rated_count']} rated matches in our dataset. Ratings are fictional demo values; "
+                "ties at the cutoff are included. [S1]\n\n")
+        text += '\n'.join(f"{i}. {r['name']} — {r['locality'] or 'Locality unavailable'}: "
+                          f"{r['rating_out_of_5']:g}/5 [S1]"
+                          for i, r in enumerate(data['outlets'], 1))
+        return text, 'answered', ['S1']
+    if data['operation'] == 'cuisines':
+        if not data['outlets']:
+            return f'No restaurant outlets{where}{serving} match your filters in our dataset. [S1]', 'answered', ['S1']
+        text = f"Cuisines served by the {data['count']} matching restaurant outlets{where}{serving}: [S1]\n\n"
+        text += '\n'.join(f"{i}. {r['name']} — {r['locality'] or 'Locality unavailable'}: "
+                          f"{', '.join(r['cuisines']) or 'Cuisine information unavailable'} [S1]"
+                          for i, r in enumerate(data['outlets'], 1))
+        return text, 'answered', ['S1']
     text = f"Our dataset contains {data['count']} restaurant outlets{where}{serving} matching your filters. [S1]"
     if data['operation'] == 'list':
         text += '\n\n' + '\n'.join(f"{i}. {r['name']} — {r['locality'] or 'Locality unavailable'} ({r['restaurant_id']})"
