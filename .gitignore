@@ -2,7 +2,6 @@
 .venv/
 __pycache__/
 *.pyc
-data/chunks.json
 data/pinecone_index.json
 .ipynb_checkpoints/
 evals/runs/
